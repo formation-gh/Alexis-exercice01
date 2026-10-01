@@ -1,31 +1,24 @@
-import unittest
+from selenium.webdriver.common.by import By
 
-from selenium import webdriver
+from browser_test_case import BrowserTestCase
 
 
-class ApplicationSmokeTest(unittest.TestCase):
-    def test_application_loads_without_browser_errors(self):
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
-
-        driver = webdriver.Chrome(options=options)
-        self.addCleanup(driver.quit)
-
-        driver.get("https://aouzgaga.github.io/formation-gh-api/")
-
+class ApplicationSmokeTest(BrowserTestCase):
+    def test_application_loads_expected_login_screen_without_browser_errors(self):
         self.assertEqual(
-            "complete", driver.execute_script("return document.readyState")
+            "Bienvenue", self.driver.find_element(By.TAG_NAME, "h1").text
         )
+        self.assertIn(
+            "ESPACE SÉCURISÉ", self.driver.find_element(By.TAG_NAME, "body").text
+        )
+        self.assertTrue(
+            self.driver.find_element(By.CSS_SELECTOR, "input[type='password']")
+        )
+        self.assertFalse(self.driver.find_elements(By.CSS_SELECTOR, ".user-list"))
+
         browser_errors = [
             entry
-            for entry in driver.get_log("browser")
+            for entry in self.driver.get_log("browser")
             if entry["level"] == "SEVERE" and entry["source"] == "javascript"
         ]
         self.assertFalse(browser_errors, f"Erreurs navigateur : {browser_errors}")
-
-
-if __name__ == "__main__":
-    unittest.main()
