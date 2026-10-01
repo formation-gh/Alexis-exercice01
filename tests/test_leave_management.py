@@ -1,9 +1,10 @@
+import unittest
 from datetime import date, timedelta
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
-from browser_test_case import BrowserTestCase
+from browser_test_case import APPLICATION_PASSWORD, BrowserTestCase
 
 
 def next_weekday():
@@ -13,6 +14,10 @@ def next_weekday():
     return selected
 
 
+@unittest.skipUnless(
+    APPLICATION_PASSWORD,
+    "Définissez le secret APP_PASSWORD pour tester les parcours authentifiés.",
+)
 class LeaveManagementTest(BrowserTestCase):
     def open_first_user(self):
         self.connect()
@@ -50,10 +55,14 @@ class LeaveManagementTest(BrowserTestCase):
         )
         self.set_dates(saturday, saturday)
 
+        WebDriverWait(self.driver, 10).until(
+            lambda driver: not driver.find_element(
+                By.XPATH, "//button[normalize-space()='Poser le congé']"
+            ).is_enabled()
+        )
         submit_button = self.driver.find_element(
             By.XPATH, "//button[normalize-space()='Poser le congé']"
         )
-        WebDriverWait(self.driver, 10).until(lambda _: not submit_button.is_enabled())
         self.assertFalse(submit_button.is_enabled())
 
     def test_weekday_leave_can_be_created_and_deleted(self):
@@ -61,10 +70,14 @@ class LeaveManagementTest(BrowserTestCase):
         selected_day = next_weekday()
         self.set_dates(selected_day, selected_day)
 
+        WebDriverWait(self.driver, 10).until(
+            lambda driver: driver.find_element(
+                By.XPATH, "//button[normalize-space()='Poser le congé']"
+            ).is_enabled()
+        )
         submit_button = self.driver.find_element(
             By.XPATH, "//button[normalize-space()='Poser le congé']"
         )
-        WebDriverWait(self.driver, 10).until(lambda _: submit_button.is_enabled())
         submit_button.click()
         WebDriverWait(self.driver, 10).until(
             lambda driver: len(driver.find_elements(By.CSS_SELECTOR, ".leave-row")) == 1
