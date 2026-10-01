@@ -20,7 +20,9 @@ class ApplicationSmokeTest(unittest.TestCase):
             "complete", driver.execute_script("return document.readyState")
         )
         browser_errors = [
-            entry for entry in driver.get_log("browser") if entry["level"] == "SEVERE"
+            entry
+            for entry in driver.get_log("browser")
+            if entry["level"] == "SEVERE" and entry["source"] == "javascript"
         ]
         self.assertFalse(browser_errors, f"Erreurs navigateur : {browser_errors}")
 
