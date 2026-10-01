@@ -13,3 +13,6 @@ automatiquement le pilote correspondant au navigateur.
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
+
+Les tests s’exécutent automatiquement avec GitHub Actions à chaque push et
+pull request.
